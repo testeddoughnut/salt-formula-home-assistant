@@ -5,8 +5,17 @@ home_assistant_packages:
   pkg.installed:
   - names: {{ server.pkgs }}
 
+home_assistant_user:
+  user.present:
+  - name: {{ server.user }}
+  - system: true
+  - home: {{ server.dir.base }}
+  - require:
+    - virtualenv: {{ server.dir.base }}
+
 {{ server.dir.base }}:
   virtualenv.manage:
+  - user: {{ server.user }}
   - system_site_packages: True
   - requirements: salt://home_assistant/files/requirements.txt
   - python: /usr/bin/python3
@@ -20,20 +29,13 @@ home_assistant_install:
   {%- else %}
   - name: homeassistant{%- if server.source is defined and server.source.version is defined %}=={{ server.source.version }}{%- endif %}
   {%- endif %}
+  - user: {{ server.user }}
   - pre_releases: True
   - bin_env: {{ server.dir.base }}
   - exists_action: w
   - require:
     - virtualenv: {{ server.dir.base }}
     - pkg: home_assistant_packages
-
-home_assistant_user:
-  user.present:
-  - name: home_assistant
-  - system: true
-  - home: {{ server.dir.base }}
-  - require:
-    - virtualenv: {{ server.dir.base }}
 
 home_assistant_dir:
   file.directory:
@@ -42,7 +44,7 @@ home_assistant_dir:
     - /var/log/home_assistant
   - mode: 700
   - makedirs: true
-  - user: home_assistant
+  - user: {{ server.user }}
   - require:
     - virtualenv: {{ server.dir.base }}
 
@@ -50,6 +52,7 @@ home_assistant_dir:
 
 home_assistant_config:
   git.latest:
+  - user: {{ server.user }}
   - name: {{ server.config.address }}
   - target: /etc/home_assistant
   - rev: {{ server.config.revision|default(server.config.branch) }}
@@ -65,7 +68,7 @@ home_assistant_config_dir:
   - name: /etc/home_assistant
   - mode: 700
   - makedirs: true
-  - user: home_assistant
+  - user: {{ server.user }}
   - require:
     - virtualenv: {{ server.dir.base }}
 
@@ -74,7 +77,7 @@ home_assistant_config:
   - name: /etc/home_assistant/configuration.yaml
   - source: salt://home_assistant/files/configuration.yaml
   - template: jinja
-  - user: home_assistant
+  - user: {{ server.user }}
   - mode: 600
   - require:
     - file: home_assistant_config_dir
@@ -86,7 +89,7 @@ home_assistant_know_devices:
   - name: /etc/home_assistant/known_devices.yaml
   - source: salt://home_assistant/files/known_devices.yaml
   - template: jinja
-  - user: home_assistant
+  - user: {{ server.user }}
   - mode: 600
   - require:
     - file: home_assistant_dir
