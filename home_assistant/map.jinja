@@ -5,6 +5,9 @@ Debian:
   pkgs:
   - python3-dev
   - python3-pip
+{%- if grains['pythonversion'][0] == 2 %}
+  - python-pip
+{%- endif %}
   - virtualenv
   bind:
     address: 0.0.0.0

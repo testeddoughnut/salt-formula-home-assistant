@@ -8,4 +8,6 @@ homeassistant:
   time_zone: {{ system.timezone }}
 http:
   api_password: {{ server.api_password }}
+{%- if server.plugin is defined %}
 {{ server.plugin|yaml(False) }}
+{%- endif %}
