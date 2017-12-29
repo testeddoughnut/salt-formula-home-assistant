@@ -98,4 +98,24 @@ home_assistant_know_devices:
 
 {%- endif %}
 
+{%- if server.use_systemd %}
+
+home_assistant_systemd_unit:
+  file.managed:
+    - name: /etc/systemd/system/home_assistant.service
+    - source: salt://home_assistant/files/home_assistant.service
+    - template: jinja
+  module.run:
+    - name: service.systemctl_reload
+    - onchanges:
+      - file: home_assistant_systemd_unit
+
+home_assistant_running:
+  service.running:
+    - name: home_assistant
+    - watch:
+      - module: home_assistant_systemd_unit
+
+{%- endif %}
+
 {%- endif %}

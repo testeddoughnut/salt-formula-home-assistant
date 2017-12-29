@@ -17,6 +17,7 @@ Debian:
   config:
     engine: local
   user: home_assistant
+  use_systemd: false
 {%- endload %}
 
 {%- set server = salt['grains.filter_by'](base_defaults, merge=salt['pillar.get']('home_assistant:server')) %}

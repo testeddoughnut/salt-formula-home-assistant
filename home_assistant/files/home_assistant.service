@@ -1,0 +1,16 @@
+{%- from "home_assistant/map.jinja" import server with context %}
+[Unit]
+Description=Home Assistant
+After=network.target
+
+[Service]
+Type=simple
+User={{ server.user }}
+WorkingDirectory={{ server.dir.base }}
+ExecStart={{ server.dir.base }}/bin/hass --config /etc/home_assistant/
+Restart=on-abort
+StandardOutput=file:/var/log/home_assistant/home_assistant.log
+StandardError=file:/var/log/home_assistant/home_assistant.log
+
+[Install]
+WantedBy=multi-user.target
